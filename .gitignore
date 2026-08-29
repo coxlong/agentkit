@@ -1,0 +1,29 @@
+# Binaries
+bin/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test binaries & coverage
+*.test
+*.out
+coverage.txt
+
+# Go workspace
+go.work
+go.work.sum
+
+# Dependency vendor (optional)
+vendor/
+
+# Local env & credentials — never commit
+.env
+.env.*
+*.pem
+*.key
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store
