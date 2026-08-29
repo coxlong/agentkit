@@ -1,18 +1,22 @@
 BIN_DIR := bin
 
-.PHONY: help build test vet fmt tidy clean
+.PHONY: help build install test vet fmt tidy clean
 
 help:
-	@echo "build  编译 cmd/ 下所有工具到 $(BIN_DIR)/"
-	@echo "test   运行单元测试"
-	@echo "vet    静态检查"
-	@echo "fmt    格式化代码"
-	@echo "tidy   整理依赖"
-	@echo "clean  清理构建产物"
+	@echo "build     build all tools under cmd/ into $(BIN_DIR)/"
+	@echo "install   install all tools to go install's GOBIN (default ~/go/bin; override with GOBIN)"
+	@echo "test      run unit tests"
+	@echo "vet       run static checks"
+	@echo "fmt       format the code"
+	@echo "tidy      tidy dependencies"
+	@echo "clean     clean build artifacts"
 
 build:
 	@mkdir -p $(BIN_DIR)
 	go build -o $(BIN_DIR)/ ./cmd/...
+
+install:
+	go install ./cmd/...
 
 test:
 	go test ./...
