@@ -13,6 +13,28 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// platformMimeMisses covers common formats that mime.TypeByExtension misses:
+// they are absent from its builtin table, so it falls back to system files
+// (/etc/mime.types and friends), which slim container images do not ship —
+// there .md would upload as application/octet-stream. A system table, when
+// present, still wins via TypeByExtension; this only fills the gaps.
+var platformMimeMisses = map[string]string{
+	".md":       "text/markdown; charset=utf-8",
+	".markdown": "text/markdown; charset=utf-8",
+	".yaml":     "application/yaml",
+	".yml":      "application/yaml",
+	".toml":     "application/toml",
+}
+
+// contentType infers the Content-Type of a local file from its extension.
+func contentType(path string) string {
+	ext := strings.ToLower(filepath.Ext(path))
+	if ct := mime.TypeByExtension(ext); ct != "" {
+		return ct
+	}
+	return platformMimeMisses[ext]
+}
+
 var putCmd = &cobra.Command{
 	Use:   "put <local file> s3://<bucket>/<key>",
 	Short: "Upload a file",
@@ -55,7 +77,7 @@ threshold are automatically split into parts.
 		}
 		// Infer Content-Type from the extension so downloaders and browsers do
 		// not have to guess.
-		if ct := mime.TypeByExtension(filepath.Ext(args[0])); ct != "" {
+		if ct := contentType(args[0]); ct != "" {
 			input.ContentType = &ct
 		}
 		if _, err := manager.NewUploader(client).Upload(context.Background(), input); err != nil {
