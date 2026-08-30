@@ -7,11 +7,19 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/spf13/cobra"
 )
+
+// mtimeMetaKey is the object-metadata key stamping the source file's
+// modification time at upload. It is the fingerprint s3 sync compares: equal
+// sizes prove nothing when a file is edited in place, and the remote
+// LastModified is an upload timestamp read on the server's clock, not the
+// source file's mtime.
+const mtimeMetaKey = "mtime"
 
 // platformMimeMisses covers common formats that mime.TypeByExtension misses:
 // they are absent from its builtin table, so it falls back to system files
@@ -59,32 +67,48 @@ threshold are automatically split into parts.
 			return fmt.Errorf("key %q must not end with a slash", key)
 		}
 
-		f, err := os.Open(args[0])
-		if err != nil {
-			return fmt.Errorf("failed to open local file: %w", err)
-		}
-		defer f.Close()
-
 		client, err := cfg.ClientFor(context.Background(), b)
 		if err != nil {
 			return err
 		}
 
-		input := &s3.PutObjectInput{
-			Bucket: &b.Bucket,
-			Key:    &key,
-			Body:   f,
-		}
-		// Infer Content-Type from the extension so downloaders and browsers do
-		// not have to guess.
-		if ct := contentType(args[0]); ct != "" {
-			input.ContentType = &ct
-		}
-		if _, err := manager.NewUploader(client).Upload(context.Background(), input); err != nil {
-			return fmt.Errorf("failed to upload to %s/%s: %w", b.Name(), key, err)
+		if err := uploadFile(context.Background(), client, b.Bucket, key, args[0]); err != nil {
+			return err
 		}
 
 		fmt.Fprintf(cmd.ErrOrStderr(), "uploaded %s -> s3://%s/%s\n", args[0], b.Name(), key)
 		return nil
 	},
+}
+
+// uploadFile uploads one local file to bucket/key. Files above the multipart
+// threshold are split automatically; Content-Type is inferred from the
+// extension, and the file's mtime is stamped into the object metadata (the
+// fingerprint s3 sync compares).
+func uploadFile(ctx context.Context, client *s3.Client, bucket, key, path string) error {
+	f, err := os.Open(path)
+	if err != nil {
+		return fmt.Errorf("failed to open local file: %w", err)
+	}
+	defer f.Close()
+
+	input := &s3.PutObjectInput{
+		Bucket: &bucket,
+		Key:    &key,
+		Body:   f,
+	}
+	// Infer Content-Type from the extension so downloaders and browsers do
+	// not have to guess.
+	if ct := contentType(path); ct != "" {
+		input.ContentType = &ct
+	}
+	if info, err := f.Stat(); err == nil {
+		input.Metadata = map[string]string{
+			mtimeMetaKey: info.ModTime().UTC().Format(time.RFC3339Nano),
+		}
+	}
+	if _, err := manager.NewUploader(client).Upload(ctx, input); err != nil {
+		return fmt.Errorf("failed to upload to %s/%s: %w", bucket, key, err)
+	}
+	return nil
 }

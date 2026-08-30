@@ -88,6 +88,22 @@ func deletePrefix(cmd *cobra.Command, cfg *s3x.Config, b *s3x.Bucket, prefix str
 	// Report the impact before deleting anything.
 	fmt.Fprintf(cmd.ErrOrStderr(), "deleting %d object(s) under s3://%s/%s\n", len(keys), b.Name(), prefix)
 
+	deleted, err := deleteKeysBatch(client, b.Bucket, keys)
+	if err != nil {
+		return err
+	}
+
+	fmt.Fprintf(cmd.ErrOrStderr(), "deleted s3://%s/%s (%d object(s))\n", b.Name(), prefix, len(deleted))
+	return nil
+}
+
+// deleteKeysBatch deletes the given keys in batches of at most 1000 (the S3
+// DeleteObjects limit) and returns the keys actually deleted, in the input
+// order; on a transport error the result is partial. The keys are expected to
+// be gathered beforehand so the caller can report the count before anything
+// is deleted.
+func deleteKeysBatch(client *s3.Client, bucket string, keys []string) ([]string, error) {
+	var deleted []string
 	for start := 0; start < len(keys); start += 1000 {
 		end := min(start+1000, len(keys))
 		batch := keys[start:end]
@@ -96,19 +112,19 @@ func deletePrefix(cmd *cobra.Command, cfg *s3x.Config, b *s3x.Bucket, prefix str
 			objects = append(objects, types.ObjectIdentifier{Key: aws.String(k)})
 		}
 		out, err := client.DeleteObjects(context.Background(), &s3.DeleteObjectsInput{
-			Bucket: &b.Bucket,
+			Bucket: &bucket,
 			Delete: &types.Delete{Objects: objects, Quiet: aws.Bool(true)},
 		})
 		if err != nil {
-			return fmt.Errorf("failed to batch delete: %w", err)
+			return deleted, fmt.Errorf("failed to batch delete: %w", err)
 		}
-		for _, e := range out.Errors {
-			return fmt.Errorf("failed to delete %s: %s", aws.ToString(e.Key), aws.ToString(e.Message))
+		if len(out.Errors) > 0 {
+			e := out.Errors[0]
+			return deleted, fmt.Errorf("failed to delete %s: %s", aws.ToString(e.Key), aws.ToString(e.Message))
 		}
+		deleted = append(deleted, batch...)
 	}
-
-	fmt.Fprintf(cmd.ErrOrStderr(), "deleted s3://%s/%s (%d object(s))\n", b.Name(), prefix, len(keys))
-	return nil
+	return deleted, nil
 }
 
 func init() {
