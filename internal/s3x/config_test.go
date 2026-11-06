@@ -126,6 +126,36 @@ func TestValidateRejectsUnknownService(t *testing.T) {
 	}
 }
 
+func TestValidateNormalizesDomain(t *testing.T) {
+	c := testConfig()
+	c.Buckets[0].Domain = "https://static.example.com/"
+	if err := c.validate(); err != nil {
+		t.Fatalf("a trailing slash should be accepted, got: %v", err)
+	}
+	if got := c.Buckets[0].Domain; got != "https://static.example.com" {
+		t.Errorf("domain should be normalized, got %q", got)
+	}
+}
+
+func TestValidateRejectsBadDomain(t *testing.T) {
+	cases := []string{
+		"http://static.example.com",         // plaintext
+		"static.example.com",                // no scheme
+		"https://static.example.com/prefix", // path
+		"https://static.example.com/?q=1",   // query
+		"https://static.example.com/#frag",  // fragment
+		"https://user:pass@example.com",     // user info
+		"https://",                          // no host
+	}
+	for _, d := range cases {
+		c := testConfig()
+		c.Buckets[0].Domain = d
+		if err := c.validate(); err == nil {
+			t.Errorf("domain %q should be rejected", d)
+		}
+	}
+}
+
 func TestBucketHintsUsedInError(t *testing.T) {
 	c := testConfig()
 	if err := c.validate(); err != nil {

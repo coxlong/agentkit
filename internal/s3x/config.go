@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -21,6 +22,15 @@ type Service struct {
 	ForcePathStyle *bool  `toml:"force_path_style"`
 }
 
+// PathStyle defaults to path-style for self-hosted endpoints and
+// virtual-hosted-style for AWS.
+func (s Service) PathStyle() bool {
+	if s.ForcePathStyle != nil {
+		return *s.ForcePathStyle
+	}
+	return s.Endpoint != ""
+}
+
 // Bucket maps an agent-visible name to a real bucket and the S3 service it
 // belongs to.
 type Bucket struct {
@@ -28,6 +38,10 @@ type Bucket struct {
 	Alias   string `toml:"alias"`
 	Service string `toml:"service"`
 	Desc    string `toml:"desc"`
+
+	// Domain is the optional custom domain the bucket is served under, e.g.
+	// "https://static.example.com". Operator-only: the agent never sees it.
+	Domain string `toml:"domain"`
 }
 
 // Name returns the agent-visible name: the alias if set, otherwise the real
@@ -159,6 +173,9 @@ func (c *Config) validate() error {
 			}
 			return fmt.Errorf("bucket %q references undefined service %q", name, b.Service)
 		}
+		if err := normalizeDomain(b); err != nil {
+			return err
+		}
 		if prev, ok := c.index[name]; ok {
 			if prev.Bucket == b.Bucket && prev.Alias == b.Alias {
 				return fmt.Errorf("bucket name %q is defined more than once", name)
@@ -167,6 +184,35 @@ func (c *Config) validate() error {
 		}
 		c.index[name] = b
 	}
+	return nil
+}
+
+// normalizeDomain validates an optional custom domain and drops a trailing
+// slash. Only an absolute https address is accepted: a path, query or fragment
+// would make the object address ambiguous.
+func normalizeDomain(b *Bucket) error {
+	d := strings.TrimRight(strings.TrimSpace(b.Domain), "/")
+	if d == "" {
+		b.Domain = ""
+		return nil
+	}
+	u, err := url.Parse(d)
+	if err != nil {
+		return fmt.Errorf("bucket %q: invalid domain %q: %w", b.Name(), b.Domain, err)
+	}
+	switch {
+	case u.Scheme != "https":
+		return fmt.Errorf("bucket %q: domain %q must start with https://", b.Name(), b.Domain)
+	case u.Host == "":
+		return fmt.Errorf("bucket %q: domain %q has no host", b.Name(), b.Domain)
+	case u.User != nil:
+		return fmt.Errorf("bucket %q: domain %q must not contain user info", b.Name(), b.Domain)
+	case u.Path != "":
+		return fmt.Errorf("bucket %q: domain %q must not contain a path", b.Name(), b.Domain)
+	case u.RawQuery != "" || u.Fragment != "":
+		return fmt.Errorf("bucket %q: domain %q must not contain a query or fragment", b.Name(), b.Domain)
+	}
+	b.Domain = d
 	return nil
 }
 

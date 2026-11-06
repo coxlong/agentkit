@@ -87,14 +87,14 @@ func TestDeleteServiceCascadesBuckets(t *testing.T) {
 	if err := addService(cfg, "minio", "http://localhost:9000", "us-east-1", "ak", nil, "sk"); err != nil {
 		t.Fatalf("addService: %v", err)
 	}
-	if err := addBucket(cfg, "my-archive-bucket", "archive", "minio", "long-term"); err != nil {
+	if err := addBucket(cfg, "my-archive-bucket", "archive", "minio", "long-term", ""); err != nil {
 		t.Fatalf("addBucket: %v", err)
 	}
 	// A second bucket that stays on another service must survive.
 	if err := addService(cfg, "aws", "http://aws", "us-east-1", "ak2", nil, "sk2"); err != nil {
 		t.Fatalf("addService(aws): %v", err)
 	}
-	if err := addBucket(cfg, "reports", "", "aws", "reports"); err != nil {
+	if err := addBucket(cfg, "reports", "", "aws", "reports", ""); err != nil {
 		t.Fatalf("addBucket: %v", err)
 	}
 
@@ -128,7 +128,7 @@ func TestDeleteBucketRemovesFromConfig(t *testing.T) {
 	if err := addService(cfg, "minio", "http://localhost:9000", "us-east-1", "ak", nil, "sk"); err != nil {
 		t.Fatalf("addService: %v", err)
 	}
-	if err := addBucket(cfg, "my-archive-bucket", "archive", "minio", "long-term"); err != nil {
+	if err := addBucket(cfg, "my-archive-bucket", "archive", "minio", "long-term", ""); err != nil {
 		t.Fatalf("addBucket: %v", err)
 	}
 
@@ -141,5 +141,36 @@ func TestDeleteBucketRemovesFromConfig(t *testing.T) {
 	}
 	if len(got.Buckets) != 0 {
 		t.Errorf("bucket should be removed, got %+v", got.Buckets)
+	}
+}
+
+// The bucket form rebuilds the struct from its fields, so a field it covers
+// must round-trip through an edit instead of being silently dropped.
+func TestUpdateBucketKeepsDomain(t *testing.T) {
+	tempHome(t)
+
+	cfg, err := s3x.Load()
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if err := addService(cfg, "minio", "http://localhost:9000", "us-east-1", "ak", nil, "sk"); err != nil {
+		t.Fatalf("addService: %v", err)
+	}
+	if err := addBucket(cfg, "bucket-one", "bkt", "minio", "old desc", "https://static.example.com"); err != nil {
+		t.Fatalf("addBucket: %v", err)
+	}
+	if err := updateBucket(cfg, "bkt", "bucket-one", "bkt", "minio", "new desc", "https://static.example.com"); err != nil {
+		t.Fatalf("updateBucket: %v", err)
+	}
+
+	got, err := s3x.Load()
+	if err != nil {
+		t.Fatalf("reload: %v", err)
+	}
+	if len(got.Buckets) != 1 {
+		t.Fatalf("expected one bucket, got %+v", got.Buckets)
+	}
+	if b := got.Buckets[0]; b.Domain != "https://static.example.com" || b.Desc != "new desc" {
+		t.Errorf("domain/desc should survive an edit, got domain=%q desc=%q", b.Domain, b.Desc)
 	}
 }

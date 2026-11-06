@@ -41,10 +41,7 @@ func (c *Config) ClientFor(ctx context.Context, b *Bucket) (*s3.Client, error) {
 
 	// Self-hosted services (MinIO/R2/OSS) need path-style; AWS official
 	// endpoints need virtual-hosted-style.
-	forcePathStyle := svc.Endpoint != ""
-	if svc.ForcePathStyle != nil {
-		forcePathStyle = *svc.ForcePathStyle
-	}
+	forcePathStyle := svc.PathStyle()
 
 	client := s3.NewFromConfig(aws.Config{
 		Region: svc.Region,
