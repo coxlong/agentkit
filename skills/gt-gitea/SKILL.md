@@ -7,8 +7,6 @@ description: Operate Gitea repositories, issues, pull requests, and releases wit
 
 `gt` is the official Gitea CLI.
 
-Check authentication first: `gt auth status`. If not signed in, run `gt auth login <host>`.
-
 Common commands (`-R` selects the repository; omit it inside a clone):
 
     gt repo list
