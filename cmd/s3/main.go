@@ -37,6 +37,7 @@ Then address objects by name:
   s3 cat   s3://archive/2026/report.pdf
   s3 rm    s3://archive/2026/report.pdf
   s3 sync  ./reports s3://archive/2026/
+  s3 url   s3://archive/2026/report.pdf
 
 A bucket is never optional; only buckets declared in the config are usable.`,
 }
@@ -64,6 +65,7 @@ func init() {
 	rootCmd.AddCommand(catCmd)
 	rootCmd.AddCommand(rmCmd)
 	rootCmd.AddCommand(syncCmd)
+	rootCmd.AddCommand(urlCmd)
 	rootCmd.AddCommand(configCmd)
 }
 

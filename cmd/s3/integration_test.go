@@ -226,7 +226,7 @@ func TestAddBucketRejectsDuplicateAlias(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Load: %v", err)
 	}
-	err = addBucket(cfg, "other-bucket", "archive", "test", "x")
+	err = addBucket(cfg, "other-bucket", "archive", "test", "x", "")
 	if err == nil || !strings.Contains(err.Error(), "conflict") {
 		t.Errorf("a duplicate alias should report a conflict, got: %v", err)
 	}
@@ -247,7 +247,7 @@ func TestAddBucketRequiresExistingService(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Load: %v", err)
 	}
-	err = addBucket(cfg, "other-bucket", "other", "no-such-service", "x")
+	err = addBucket(cfg, "other-bucket", "other", "no-such-service", "x", "")
 	if err == nil || !strings.Contains(err.Error(), "no-such-service") {
 		t.Errorf("an undefined service should be rejected, got: %v", err)
 	}

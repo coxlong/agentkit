@@ -424,15 +424,16 @@ func menuAddBucket(cmd *cobra.Command, service string) error {
 		return fmt.Errorf("service %q does not exist", service)
 	}
 
-	var bucket, alias, desc string
+	var bucket, alias, desc, domain string
 	ask := &asker{}
 	ask.text(&bucket, "Real bucket name", "the S3 bucket name").Validate(notEmpty)
 	ask.text(&alias, "Agent-visible short name", "leave empty to use the bucket name")
+	ask.text(&domain, "Custom domain", "optional, e.g. https://static.example.com; leave empty to derive from the endpoint")
 	ask.text(&desc, "Description", "for the agent; describe the purpose and data lifecycle")
 	if err := ask.run(); err != nil {
 		return err
 	}
-	if err := addBucket(cfg, bucket, alias, service, desc); err != nil {
+	if err := addBucket(cfg, bucket, alias, service, desc, domain); err != nil {
 		return err
 	}
 	fmt.Fprintf(cmd.OutOrStdout(), "Bucket %q saved\n", nameFor(bucket, alias))
@@ -451,17 +452,19 @@ func menuEditBucket(cmd *cobra.Command, bName string) error {
 	b := cfg.Buckets[idx]
 	bucket, alias := b.Bucket, b.Alias
 	desc := b.Desc
+	domain := b.Domain
 	service := b.Service
 
 	ask := &asker{}
 	ask.text(&bucket, "Real bucket name", "the S3 bucket name").Validate(notEmpty)
 	ask.text(&alias, "Agent-visible short name", "leave empty to use the bucket name")
 	ask.selectValue(&service, "S3 service", "the service this bucket belongs to", serviceOpts(cfg))
+	ask.text(&domain, "Custom domain", "optional, e.g. https://static.example.com; leave empty to derive from the endpoint")
 	ask.text(&desc, "Description", "for the agent; describe the purpose and data lifecycle")
 	if err := ask.run(); err != nil {
 		return err
 	}
-	if err := updateBucket(cfg, bName, bucket, alias, service, desc); err != nil {
+	if err := updateBucket(cfg, bName, bucket, alias, service, desc, domain); err != nil {
 		return err
 	}
 	fmt.Fprintf(cmd.OutOrStdout(), "Bucket %q updated\n", nameFor(bucket, alias))
@@ -612,16 +615,20 @@ func deleteService(cfg *s3x.Config, name string) error {
 
 // addBucket appends a bucket to the config; Save rejects a duplicate
 // agent-visible name.
-func addBucket(cfg *s3x.Config, bucket, alias, service, desc string) error {
+func addBucket(cfg *s3x.Config, bucket, alias, service, desc, domain string) error {
 	if _, ok := cfg.Services[service]; !ok {
 		return fmt.Errorf("service %q does not exist", service)
 	}
-	cfg.Buckets = append(cfg.Buckets, s3x.Bucket{Bucket: bucket, Alias: alias, Service: service, Desc: desc})
+	cfg.Buckets = append(cfg.Buckets, s3x.Bucket{Bucket: bucket, Alias: alias, Service: service, Desc: desc, Domain: domain})
 	return cfg.Save()
 }
 
 // updateBucket replaces the bucket currently addressed by currentName.
-func updateBucket(cfg *s3x.Config, currentName, bucket, alias, service, desc string) error {
+//
+// The bucket is rebuilt from the form fields, so every field the form does not
+// cover must be carried over explicitly — otherwise editing a description would
+// silently drop it.
+func updateBucket(cfg *s3x.Config, currentName, bucket, alias, service, desc, domain string) error {
 	if _, ok := cfg.Services[service]; !ok {
 		return fmt.Errorf("service %q does not exist", service)
 	}
@@ -629,7 +636,7 @@ func updateBucket(cfg *s3x.Config, currentName, bucket, alias, service, desc str
 	if idx < 0 {
 		return fmt.Errorf("bucket %q does not exist", currentName)
 	}
-	cfg.Buckets[idx] = s3x.Bucket{Bucket: bucket, Alias: alias, Service: service, Desc: desc}
+	cfg.Buckets[idx] = s3x.Bucket{Bucket: bucket, Alias: alias, Service: service, Desc: desc, Domain: domain}
 	return cfg.Save()
 }
 
