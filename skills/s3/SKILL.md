@@ -1,12 +1,12 @@
 ---
 name: s3
-description: Operate object storage (AWS S3, MinIO, R2, OSS, COS) with the s3 CLI from agentkit. Use when the user mentions S3, object storage, buckets, or uploading/downloading files to cloud storage.
+description: Operate object storage with the s3 CLI. Use when the user mentions S3, object storage, buckets, or uploading/downloading files to cloud storage.
 ---
 
 # s3
 
-`s3` is the agentkit object-storage CLI. It works with any S3-protocol
-service; credentials and endpoints are operator config, invisible to you.
+`s3` is the object-storage CLI. Credentials and endpoints are operator config,
+invisible to you.
 
 Common commands (always address objects as `s3://<bucket>/<key>`):
 
