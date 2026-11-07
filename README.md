@@ -32,3 +32,5 @@ shared logic in `internal/`.
 
 - [gt-gitea](skills/gt-gitea/SKILL.md) — repositories, issues, pull requests, and
   releases through the `gt` CLI.
+- [s3](skills/s3/SKILL.md) — object storage operations (buckets, ls/put/get/cat/rm,
+  sync, url) through the `s3` CLI.
