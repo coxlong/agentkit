@@ -1,0 +1,45 @@
+{
+ "about": "Source-level mutations: patch the app, render, run parity, restore. `expect` is the category that must appear as NEW for the element `id` (screen prefix omitted). Note: a radius change on a pill (radius >= half the short side) is NOT a visible change, and the check rightly ignores it; mutate something that can show.",
+ "mutations": [
+  {
+   "name": "title font size +1",
+   "file": "app/lib/example_screens.dart",
+   "find": "style: s(DesignTokens.title, p.ink, bump: fault.fontDelta)",
+   "replace": "style: s(DesignTokens.title, p.ink, bump: 1)",
+   "expect": "font-size",
+   "id": "bar/title"
+  },
+  {
+   "name": "cta label colour",
+   "file": "app/lib/example_screens.dart",
+   "find": "style: s(DesignTokens.button, p.onBrand),",
+   "replace": "style: s(DesignTokens.button, const Color(0xFFFFFFFE)),",
+   "expect": "color",
+   "id": "cta/label"
+  },
+  {
+   "name": "first row icon is the wrong glyph",
+   "file": "app/lib/example_screens.dart",
+   "find": "fault.wrongIcon && i == 0 ? AppIcons.bell",
+   "replace": "i == 0 ? AppIcons.bell",
+   "expect": "icon-glyph",
+   "id": "row/1/icon"
+  },
+  {
+   "name": "row box corner radius +2",
+   "file": "app/lib/example_screens.dart",
+   "find": "BorderRadius.circular(16 + (i == 0 ? fault.radiusDelta : 0))",
+   "replace": "BorderRadius.circular(18)",
+   "expect": "radius",
+   "id": "row/1/box"
+  },
+  {
+   "name": "second row sub moves 4 px down",
+   "file": "app/lib/example_screens.dart",
+   "find": "top: 112.0 + i * 72 + 34,",
+   "replace": "top: 112.0 + i * 72 + 38,",
+   "expect": "baseline",
+   "id": "row/1/sub"
+  }
+ ]
+}

@@ -1,0 +1,14 @@
+{
+ "schema": 1,
+ "about": "Differences that were looked at and are accepted, each with a reason and a date. The gate fails on anything NOT listed here and reports entries whose difference is gone (delete those). Never list a difference just to make the run pass.",
+ "entries": [
+  {
+   "screen": "settings.list.dark",
+   "id": "settings.list.dark/row/3/icon",
+   "property": "mae",
+   "max_delta": 8.1,
+   "reason": "Pixel check only: the 20 px gear is a detailed outline; SVG strokes (Chromium) and font outlines (Flutter) anti-alias differently. Glyph identity, size, weight font and centre all match in the attribute check.",
+   "date": "2026-11-12"
+  }
+ ]
+}

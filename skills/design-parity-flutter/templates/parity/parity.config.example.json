@@ -1,0 +1,28 @@
+{
+ "design": "build/design_layout.json",
+ "app_dir": "build/app",
+ "screens": {
+  "settings.list": "settings_list",
+  "settings.list.dark": "settings_list_dark"
+ },
+ "design_icons": "docs/design/src/icons.json",
+ "app_icons": "assets/fonts/app_icons.json",
+ "weight_family": "AppIcons{weight}",
+ "baseline": "parity/baseline.json",
+ "design_id_index": "build/design_ids.json",
+ "source_roots": [
+  "lib"
+ ],
+ "tolerance": {},
+ "tolerance_reasons": {},
+ "require": {
+  "text_coverage": 1.0,
+  "icon_coverage": 1.0,
+  "box_coverage": 0.0,
+  "tap_min": 48
+ },
+ "report": {
+  "json": "build/report.json",
+  "md": "build/report.md"
+ }
+}
