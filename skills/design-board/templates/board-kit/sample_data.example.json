@@ -1,0 +1,17 @@
+{
+ "about": "Example content. ONE file feeds both the board and the app's preview scenes, so strings, counts and order cannot differ.",
+ "settings": {
+  "title": "Settings",
+  "rows": [
+   {"icon": "user", "title": "Account", "sub": "alex@example.com"},
+   {"icon": "bell", "title": "Notifications", "sub": "Push and email"},
+   {"icon": "settings", "title": "General", "sub": "Language, theme, and a rather long explanation that must be cut short"}
+  ],
+  "cta": "Save changes"
+ },
+ "chat": {
+  "title": "Chat",
+  "message": "I looked through the three files you mentioned and found two places where the startup path can be shortened without changing behaviour.",
+  "meta": "12 s"
+ }
+}

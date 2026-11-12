@@ -1,0 +1,40 @@
+{
+ "set": "lucide",
+ "version": "1.70.0",
+ "source": "https://cdn.jsdelivr.net/npm/lucide-static@{version}/icons/{name}.svg",
+ "about": "Icons of the board: design key -> official icon name (+ its svg after sync_icons.py). The app's icon font is built from this file.",
+ "icons": {
+  "back": {
+   "name": "arrow-left",
+   "svg": "<path d=\"m12 19-7-7 7-7\"/><path d=\"M19 12H5\"/>"
+  },
+  "chevron": {
+   "name": "chevron-right",
+   "svg": "<path d=\"m9 18 6-6-6-6\"/>"
+  },
+  "settings": {
+   "name": "settings",
+   "svg": "<path d=\"M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/>"
+  },
+  "bell": {
+   "name": "bell",
+   "svg": "<path d=\"M10.268 21a2 2 0 0 0 3.464 0\"/><path d=\"M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326\"/>"
+  },
+  "user": {
+   "name": "user",
+   "svg": "<path d=\"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2\"/><circle cx=\"12\" cy=\"7\" r=\"4\"/>"
+  },
+  "check": {
+   "name": "check",
+   "svg": "<path d=\"M20 6 9 17l-5-5\"/>"
+  },
+  "plus": {
+   "name": "plus",
+   "svg": "<path d=\"M5 12h14\"/><path d=\"M12 5v14\"/>"
+  },
+  "spark": {
+   "custom": true,
+   "svg": "<path d=\"M12 2 14.4 9.6 22 12 14.4 14.4 12 22 9.6 14.4 2 12 9.6 9.6Z\"/>"
+  }
+ }
+}

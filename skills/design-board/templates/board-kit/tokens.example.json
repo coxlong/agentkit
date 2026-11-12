@@ -1,0 +1,57 @@
+{
+ "schema": 1,
+ "about": "Design tokens: the ONE source for the board (kit.py) and the app (gen_tokens_dart.py). Edit the values for the new app; keep the keys.",
+ "screen": {"w": 390, "h": 844},
+ "fonts": {"sans": "Roboto", "mono": "monospace"},
+ "scales": {
+  "type_sizes": [12, 13, 14, 15, 16, 17, 20, 30],
+  "weights": [400, 600, 800],
+  "radii": [8, 12, 16, 24],
+  "radius_free_below": 8,
+  "icon_sizes": [12, 16, 20, 24],
+  "icon_stroke_units": [
+   {"max": 13, "units": 3.0},
+   {"max": 18, "units": 2.5},
+   {"max": 27, "units": 2.0},
+   {"max": 999, "units": 1.5}
+  ],
+  "snap": {"type_sizes": {"12.5": 12, "13.5": 14, "14.5": 15}, "weights": {"500": 400, "700": 600}}
+ },
+ "text_styles": {
+  "hero": {"size": 30, "weight": 800, "lh": 38},
+  "title": {"size": 17, "weight": 800, "lh": 24},
+  "body": {"size": 16, "weight": 400, "lh": 24},
+  "row-title": {"size": 16, "weight": 600, "lh": 22},
+  "button": {"size": 16, "weight": 800, "lh": 22},
+  "caption": {"size": 12, "weight": 400, "lh": 16},
+  "code": {"size": 13, "weight": 400, "lh": 18, "mono": true}
+ },
+ "palettes": {
+  "light": {
+   "page": "#F7F9FC", "surface": "#FFFFFF", "field": "#EEF2F7", "ink": "#0F172A", "ink2": "#334155",
+   "muted": "#64748B", "line": "#E2E8F0", "strong": "#CBD5E1", "brand": "#2563EB", "onBrand": "#FFFFFF",
+   "tint": "#DBEAFE", "brandInk": "#1D4ED8", "bad": "#DC2626", "green": "#16A34A", "gray": "#94A3B8",
+   "scrim": "#0F172A", "scrimOp": 0.4, "phoneStroke": "#CBD5E1"
+  },
+  "dark": {
+   "page": "#0B1120", "surface": "#111A2E", "field": "#18233B", "ink": "#E2E8F0", "ink2": "#CBD5E1",
+   "muted": "#94A3B8", "line": "#1E293B", "strong": "#334155", "brand": "#3B82F6", "onBrand": "#0B1120",
+   "tint": "#1E3A8A", "brandInk": "#93C5FD", "bad": "#F87171", "green": "#4ADE80", "gray": "#64748B",
+   "scrim": "#000000", "scrimOp": 0.55, "phoneStroke": "#334155"
+  }
+ },
+ "shadows": {
+  "card": {
+   "light": {"dx": 0, "dy": 2, "blur": 10, "color": "#0F172A", "opacity": 0.08},
+   "dark": {"dx": 0, "dy": 2, "blur": 10, "color": "#000000", "opacity": 0.35}
+  },
+  "sheet": {
+   "light": {"dx": 0, "dy": -6, "blur": 24, "color": "#0F172A", "opacity": 0.14},
+   "dark": {"dx": 0, "dy": -6, "blur": 24, "color": "#000000", "opacity": 0.5}
+  }
+ },
+ "board": {
+  "bg": "#E9EEF5", "ink": "#0F172A", "muted": "#64748B", "line": "#CBD5E1", "card": "#F1F5F9",
+  "brand": "#2563EB", "tint": "#DBEAFE", "brandInk": "#1D4ED8", "onBrand": "#FFFFFF"
+ }
+}
