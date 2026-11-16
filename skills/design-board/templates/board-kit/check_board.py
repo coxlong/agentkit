@@ -69,7 +69,7 @@ def main():
     if not s.endswith('\n'):
         problems.append('no final newline')
 
-    # ids for the implementation check
+    # per-screen ids
     screens = [g.get('data-screen') for g in root.iter(NS + 'g') if g.get('data-screen')]
     dup_screen = sorted({x for x in screens if screens.count(x) > 1})
     if dup_screen:

@@ -2,7 +2,7 @@
  "set": "lucide",
  "version": "1.70.0",
  "source": "https://cdn.jsdelivr.net/npm/lucide-static@{version}/icons/{name}.svg",
- "about": "Icons of the board: design key -> official icon name (+ its svg after sync_icons.py). The app's icon font is built from this file.",
+ "about": "Icons of the board: design key -> official icon name (+ its svg after sync_icons.py). One library; semantic keys survive a library change.",
  "icons": {
   "back": {
    "name": "arrow-left",

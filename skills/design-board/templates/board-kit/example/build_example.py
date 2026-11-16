@@ -56,6 +56,7 @@ def main():
     ap.add_argument('--icons', default=os.path.join(KIT, 'icons.example.json'))
     ap.add_argument('--data', default=os.path.join(KIT, 'sample_data.example.json'))
     ap.add_argument('--measured')
+    ap.add_argument('--meta', help='write screen_meta.json (content hashes + render regions) here')
     ap.add_argument('--id-index')
     ap.add_argument('--needed')
     a = ap.parse_args()
@@ -68,6 +69,8 @@ def main():
     b.screen('settings.list.dark', 'Settings list, dark', lambda g: settings(data, g), K.dark, 'Same ids, dark palette.', status=status_bar)
     b.screen('chat.card.dark', 'Chat card, dark', lambda g: chat(data, g), K.dark, 'Same ids, dark palette.', status=status_bar)
     open(a.out, 'w', encoding='utf-8').write(b.svg())
+    if a.meta:
+        b.write_meta(a.meta)
     if a.id_index:
         kit.write_id_index(a.id_index)
     missing = kit.write_needed_text(a.needed) if a.needed else 0

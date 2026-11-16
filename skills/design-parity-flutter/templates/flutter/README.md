@@ -11,7 +11,7 @@ Copy them into the project (`test/render/` and `lib/`) and fill in the places th
 | `app_glyph.dart` `app_icon.dart` | `lib/` | `AppGlyph` (IconData per weight step) and the `AppIcon` widget (picks the weight by size) |
 | `build_icon_font.py` | `tool/` | Build the icon fonts, `app_icons.json` and `app_icons.g.dart` from `icons.json` (needs fonttools and a pub cache with `lucide_icons_flutter`) |
 
-Where generated files come from: `gen_tokens_dart.py` (in design-board's board-kit) → `lib/design_tokens.g.dart`;
+Where generated files come from: `gen_tokens_dart.py` (this folder) → `lib/design_tokens.g.dart`;
 `app_glyph.dart` depends on its `iconWeight()`.
 
 Environment variables: `RENDER=1`, `RENDER_OUT`, `ONLY` (scene names, comma-separated), `RENDER_DPR`, `RENDER_PNG_RATIO`;

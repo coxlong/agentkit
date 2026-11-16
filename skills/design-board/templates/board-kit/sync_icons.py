@@ -10,8 +10,7 @@ icons.json:
    "source": "https://cdn.jsdelivr.net/npm/lucide-static@{version}/icons/{name}.svg",
    "icons": {"back": {"name": "arrow-left"}, "think": {"custom": true, "svg": "<path .../>"}}}
 Each design key maps to an official icon name; `custom` entries keep their own svg (a filled glyph that is not in the
-set) and are never fetched. The app's icon font is built from the same file (flutter/build_icon_font.py), so the board
-and the app draw the same shapes at the same stroke. Standard library only.
+set) and are never fetched. The board draws the official shapes at the stroke rule of the tokens. Standard library only.
 """
 import argparse
 import json

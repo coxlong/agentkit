@@ -9,7 +9,7 @@ Reports, per screen:
   overlap  two texts whose boxes overlap by more than 2 px in both directions
   ids      elements without an id (info; check_board.py --require-ids makes it an error)
 --strict: exit 1 when `scale` or `overflow` has an entry. `overlap` is reported but never fails: a sheet over a page
-legitimately overlaps what is behind it; compare overlaps between design and app with parity.py instead.
+legitimately overlaps what is behind it; review the reported pairs.
 """
 import argparse
 import json

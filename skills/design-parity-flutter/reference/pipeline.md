@@ -19,7 +19,7 @@ tool/parity.sh              one command (render + dump + compare + exit code)
 
 ## A. Tokens into code
 
-- `python3 gen_tokens_dart.py tokens.json lib/design_tokens.g.dart`
+- `python3 gen_tokens_dart.py tokens.json lib/design_tokens.g.dart` (copy `templates/flutter/gen_tokens_dart.py` into the project)
 - Icons: `python3 build_icon_font.py --icons icons.json --tokens tokens.json --lucide-pkg <lucide_icons_flutter package dir> --out-fonts assets/fonts --out-dart lib/app_icons.g.dart`
   (needs fonttools; run it where fonttools is installed and commit the outputs). Declare the four font families
   (`AppIcons300/400/500/600`) in `pubspec.yaml`.
@@ -86,7 +86,7 @@ tolerance, code location).
 - `python3 mutate.py source --config ... --mutations parity/mutations.json --render-cmd "tool/render.sh" --project-dir .`:
   patches the app source, really renders, checks, restores. This also proves **the dumper**. `mutations.json`:
   `{"mutations": [{"name": "title font +1", "file": "lib/settings.dart", "find": "fontSize: 17", "replace": "fontSize: 18", "expect": "font-size", "id": "bar/title"}]}`
-- At least 5 kinds: size +1, spacing +4, wrong icon, a colour step, radius +2, element overflow (the templates have 27).
+- At least 5 kinds: size +1, spacing +4, wrong icon, a colour step, radius +2, element overflow (the templates have 29).
   **All detected and zero after restoring** = pass; any miss means the check has a hole — fix the check first.
 - Exit: `mutation_report.json` has `pass: true`, and it runs in CI.
 

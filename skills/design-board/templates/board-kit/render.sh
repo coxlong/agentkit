@@ -1,5 +1,5 @@
 #!/bin/bash
-# Renders a region of an SVG to PNG with headless Chromium. Nothing from the app is run.
+# Renders a region of an SVG to PNG with headless Chromium. Nothing is executed besides Chromium.
 #
 #   ./render.sh in.svg out.png [x y w h [scale]]
 #
@@ -10,7 +10,7 @@
 # Chromium lookup order: $CHROME, a Playwright headless shell in ~/.cache/ms-playwright, then PATH.
 #
 # FONTS="family|/path/file.otf|weight;family|/path/other.otf|weight"   draw the text with these exact font files
-# (the same ones the app is rendered with; needed for any pixel comparison with the app). The svg is then inlined
+# (needed only to match another renderer's metrics, or for a pixel comparison). The svg is then inlined
 # in the page, because an svg shown as an image cannot load fonts.
 set -euo pipefail
 if [ $# -lt 2 ]; then sed -n '2,12p' "$0"; exit 2; fi

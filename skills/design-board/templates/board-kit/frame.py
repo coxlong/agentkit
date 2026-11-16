@@ -1,4 +1,8 @@
 """Artboard framing: phones, captions, section headers, the board layout and the SVG document."""
+import hashlib
+import json
+import os
+
 import kit
 from kit import esc, f, uid
 
@@ -72,6 +76,7 @@ class Board:
         self.cols, self.margin, self.gap_x, self.gap_y, self.caption_h = cols, margin, gap_x, gap_y, caption_h
         self.width = margin * 2 + cols * 390 + (cols - 1) * gap_x
         self.parts, self.codes, self.titles = [], {}, {}
+        self.meta = {}          # screen id -> {sha, code, title, x, y, w, h, region}
         self.y = margin
         self.col = 0
         self.letter, self.n, self.row_h = None, 0, 0
@@ -103,8 +108,22 @@ class Board:
         self.parts.append(caption(x, self.y + h + 22, code, title, desc))
         self.row_h = max(self.row_h, h + self.caption_h)
         self.col += 1
+        # Content hash (screen-local markup + theme + size, NOT the absolute board position) and the render region
+        # (artboard + its note strip) feed changed-screen detection and per-screen PNG review.
+        sha = hashlib.sha256((str(g) + f'|{w}x{h}|{t.name}').encode()).hexdigest()[:16]
+        self.meta[screen] = {'sha': sha, 'code': code, 'title': title, 'x': x, 'y': self.y, 'w': w, 'h': h,
+                             'region': [x, self.y, w, h + 22 + self.caption_h]}
         if self.col >= self.cols:
             self._end_row()
+
+    def write_meta(self, path):
+        """screen id -> {sha, code, title, x, y, w, h, region}; build.sh diffs the sha against the previous build,
+        render_screens.sh uses the regions."""
+        os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+        with open(path, 'w', encoding='utf-8') as fh:
+            json.dump({'screens': self.meta}, fh, ensure_ascii=False, indent=1)
+            fh.write('\n')
+        return path
 
     def svg(self):
         self._end_row()

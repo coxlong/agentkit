@@ -233,6 +233,21 @@ def m_line_height(d):
         return t['id']
 
 
+def m_pitch(d):
+    # the layout rounded a line box: the rendered pitch moves while the style still says what the board says
+    t = first(d, 'texts', lambda e: e.get('lh') and e.get('lines'))
+    if t:
+        t['h'] += t['lines'] * 1.0
+        return t['id']
+
+
+def m_tracking(d):
+    t = first(d, 'texts', lambda e: e.get('s'))
+    if t:
+        t['ls'] = 0.25
+        return t['id']
+
+
 def m_align(d):
     t = first(d, 'texts', lambda e: e['lines'] > 1)
     if t:
@@ -294,6 +309,7 @@ MUTATIONS = [
     ('line count +1', 'lines', m_lines), ('element missing in app', 'missing', m_missing),
     ('extra element in app', 'extra', m_extra), ('render overflow', 'overflow', m_overflow),
     ('tap target 40 px', 'tap-target', m_tap), ('text content changed', 'text', m_text), ('line height x1.5', 'line-height', m_line_height),
+    ('rendered line pitch +1 px', 'line-height', m_pitch), ('letter spacing 0.25', 'tracking', m_tracking),
     ('paragraph alignment', 'align', m_align), ('icon moved 3 px', 'icon-pos', m_icon_pos), ('icon colour, one step', 'icon-color', m_icon_color),
     ('icon weight font', 'icon-weight', m_icon_weight), ('box fill, one step', 'fill', m_fill), ('two texts overlap', 'overlap', m_overlap),
     ('two ids on one render object', 'id-conflict', m_id_conflict), ('id coverage drops', 'coverage', m_coverage),

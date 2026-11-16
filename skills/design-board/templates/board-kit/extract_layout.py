@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exports what every artboard of the board draws, in phone-local pixels, as JSON (the design side of the parity check).
+"""Exports what every artboard of the board draws, in phone-local pixels, as JSON (the numeric spec of the board).
 
     python3 extract_layout.py board.svg -o build/design_layout.json
 
@@ -49,7 +49,7 @@ def compose(parent, child):
 
 
 def shadows(root):
-    """filter id -> drop shadow {dx, dy, blur (CSS/Flutter blur radius = 2 sigma), color, opacity}."""
+    """filter id -> drop shadow {dx, dy, blur (CSS blur radius = 2 sigma), color, opacity}."""
     out = {}
     for flt in root.iter(NS + 'filter'):
         sh = flt.find(NS + 'feDropShadow')
@@ -81,7 +81,7 @@ def walk(el, ctx, out, shadow_defs):
                    'fs': r2(sx * num(ch.get('font-size'), 16)), 'fw': int(num(ch.get('font-weight'), 400)),
                    'fill': ch.get('fill'), 'op': num(ch.get('opacity'), 1.0), 'anchor': ch.get('text-anchor', 'start'),
                    'mono': 'mono' in (ch.get('font-family') or '').lower(), 'lh': r2(sy * num(ch.get('data-lh'), 0)) or None,
-                   'style': ch.get('data-style'), 'lines': 1, 'y_last': r2(ty + sy * num(ch.get('y'))), 'deco': deco}
+                   'ls': r2(sx * num(ch.get('letter-spacing'), 0)), 'style': ch.get('data-style'), 'lines': 1, 'y_last': r2(ty + sy * num(ch.get('y'))), 'deco': deco}
             if spans:
                 rec['spans'] = [[c, t] for c, t in spans]
             if did and ch.get('data-line') is not None:

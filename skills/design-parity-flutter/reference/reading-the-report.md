@@ -11,7 +11,8 @@ paired elements, the number of differences (new / baselined), and the font sha25
 | `extra` | The app has this id; the design does not | The implementation draws something extra; or the board is missing it (go through the design flow) |
 | `coverage` | The design has elements without ids / the app's id coverage is too low | Add ids; mark decoration with `deco=True` |
 | `text` | The text content differs | Not using the shared sample data; different localised copy |
-| `font-size` `weight` `line-height` `color` `align` | The corresponding text property differs | Not using the token text style; a `copyWith` changed something |
+| `font-size` `weight` `line-height` `color` `align` | The corresponding text property differs | Not using the token text style; a `copyWith` changed something. `line-height` also fires on the **rendered** pitch: Flutter rounds a line box to whole pixels (26.5 becomes 27), so a fractional board line height can never match: change the board to an integer, or baseline it with that reason |
+| `tracking` | Letter spacing differs (the board's is 0) | Material's default text styles carry 0.1–0.5 of tracking, which every `Text` whose style names none inherits; give the theme's `TextTheme` `letterSpacing: 0` |
 | `x` `baseline` | First-line anchor x / first-line baseline differ | Position is off (spacing = the sum of these deltas); a ~1px global baseline difference → the board was not built from app measurements (step D) |
 | `lines` `ellipsis` | Line count / ellipsis differ | Wrapping width differs; `maxLines`/`overflow` not set; different fonts change wrap points |
 | `icon-glyph` | Icon identity differs (design icon name ≠ app glyph name) | Wrong icon; not using the generated `AppIcons` |

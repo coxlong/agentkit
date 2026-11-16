@@ -11,7 +11,7 @@ description: >
   the consistency gate. The comparator is framework-neutral (it consumes a JSON dump); the templates here are for Flutter.
 metadata:
   last_verified: 2026-11-12
-  proven_on: Flutter 3.47.9 — verified end to end on a throwaway 4-screen app during development: 22 differences with estimated text metrics -> 0 with app-measured metrics; 27/27 dump mutations, 7/7 app-level faults and 5/5 source-patch mutations detected; pixel fallback 1 baselined difference. No example app is shipped.
+  proven_on: Flutter 3.47.9 — verified end to end on a throwaway 4-screen app during development: 22 differences with estimated text metrics -> 0 with app-measured metrics; 27/27 dump mutations, 7/7 app-level faults and 5/5 source-patch mutations detected; pixel fallback 1 baselined difference. No example app is shipped. Two mutations (letter spacing, rendered line pitch) were added afterwards and are verified on the synthesized dump only (29/29).
 ---
 
 # design-parity-flutter: implement the app and prove it matches the board, with scripts
@@ -57,7 +57,7 @@ Prerequisites (fix what is missing first; do not force it):
 
 ## Workflow (in order; verify each step on its own)
 
-**A. Tokens into code.** `gen_tokens_dart.py tokens.json lib/design_tokens.g.dart`; the theme (colours, `TextStyle`, shadows,
+**A. Tokens into code.** `gen_tokens_dart.py tokens.json lib/design_tokens.g.dart` (in `templates/flutter/`); the theme (colours, `TextStyle`, shadows,
 radii) comes entirely from the generated classes — no hand copying. Icons: `flutter/build_icon_font.py` generates the per-weight
 fonts + `lib/app_icons.g.dart` + `app_icons.json`; product code writes only `AppIcon(AppIcons.x, size: N)`.
 Exit: `flutter analyze` is clean.
@@ -76,7 +76,7 @@ Tappable things get `Semantics(identifier: ...)`. Exit: the app dump's `coverage
 
 **E. Dump and compare.** Render test: each scene writes `<scene>.json` (`layout_dump.dart`) and `<scene>.png`; design side
 `extract_layout.py`; `parity.py check --config parity.config.json` pairs by id one-to-one and compares:
-text (content, size, weight, line height, colour, alignment, first-line anchor x, first-line baseline, line count, ellipsis) ·
+text (content, size, weight, line height — the style's and the rendered pitch — letter spacing, colour, alignment, first-line anchor x, first-line baseline, line count, ellipsis) ·
 icons (glyph identity, size, **stroke weight step**, centre, colour) · boxes (x y w h, fill, border width and colour, radius,
 shadow offset/blur/colour) · invariants (RenderFlex overflow, tap target ≥ 48, overlapping text, id coverage).
 **Spacing is not measured separately**; it is the sum of the position differences.
@@ -93,7 +93,7 @@ found by grep).
 
 **H. Mutation tests prove the check works.** `mutate.py selftest|dump|source`: size +1, baseline +4px (spacing), wrong icon,
 one colour step, radius +2, overflow, shadow, border, ellipsis, missing element, extra element, tap target, line height,
-alignment, icon position/weight, fill, overlap, id conflict, coverage … (27 in total), each of which must be detected and
+alignment, icon position/weight, fill, overlap, id conflict, coverage … (29 in total), each of which must be detected and
 must go back to zero after the mutation is reverted. `dump` proves the comparator; `source` patches the app source and really
 re-renders, proving the dumper too. Make it automatic.
 

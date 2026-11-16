@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "about": "Design tokens: the ONE source for the board (kit.py) and the app (gen_tokens_dart.py). Edit the values for the new app; keep the keys.",
+ "about": "Design tokens: the ONE source for the board (kit.py) and every downstream consumer. Edit the values for the new app; keep the keys.",
  "screen": {"w": 390, "h": 844},
  "fonts": {"sans": "Roboto", "mono": "monospace"},
  "scales": {

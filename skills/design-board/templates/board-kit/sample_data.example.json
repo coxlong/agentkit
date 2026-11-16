@@ -1,5 +1,5 @@
 {
- "about": "Example content. ONE file feeds both the board and the app's preview scenes, so strings, counts and order cannot differ.",
+ "about": "Example content. ONE file feeds the board and any downstream consumer, so strings, counts and order cannot differ.",
  "settings": {
   "title": "Settings",
   "rows": [

@@ -141,6 +141,8 @@ Map<String, dynamic> collectLayout(Element rootElement, Size screen, {DumpOption
   void visit(RenderObject o) {
     if (o is RenderOffstage && o.offstage) return;
     if (o is RenderOpacity && o.opacity == 0) return;
+    // an empty field's hint stays in the tree at zero opacity once text is typed (InputDecorator fades it)
+    if (o is RenderAnimatedOpacity && o.opacity.value == 0) return;
     if (o is RenderParagraph) {
       final span = o.text;
       final text = span.toPlainText();

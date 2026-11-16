@@ -222,6 +222,11 @@ def compare_text(screen, id_, d, a, tol, iss):
         iss.add(screen, id_, k, 'weight', 'font-weight', d['fw'], a['fw'])
     if d.get('lh') and a.get('lh') and a['fs']:
         num_diff(iss, screen, id_, k, 'line-height', 'line-height px', d['lh'], a['lh'] * a['fs'], tol['lh'])
+    # what was actually laid out: Flutter rounds a line box to whole pixels (26.5 -> 27), which a style never shows
+    if d.get('lh') and a.get('h') and a.get('lines'):
+        num_diff(iss, screen, id_, k, 'line-height', 'rendered line pitch px', d['lh'], a['h'] / a['lines'], tol['lh'])
+    # Material's own text styles carry 0.1-0.5 of tracking that any Text without its own letterSpacing inherits
+    num_diff(iss, screen, id_, k, 'tracking', 'letter-spacing px', d.get('ls') or 0, a.get('ls') or 0, 0.01)
     color_diff(iss, screen, id_, k, 'color', 'color', d['fill'], d['op'], a['c'], a.get('a'), tol)
     if d['lines'] > 1 or a['lines'] > 1:
         da, aa = anchor_name(d['anchor']), anchor_name(a.get('align', 'start'))

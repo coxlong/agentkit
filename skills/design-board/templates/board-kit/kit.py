@@ -2,13 +2,13 @@
 
 What it gives a board generator:
   * tokens   - one tokens.json (palettes, type/weight/radius/icon scales, named text styles, shadows) read by `init()`.
-               The same file generates the app's theme (gen_tokens_dart.py), so board and app cannot drift.
+               Every downstream consumer (an implementation, a checker) reads the same file, so they cannot drift.
   * scales   - every size, weight, radius and icon size goes through snap_*() so a call site cannot leave the scale.
-  * ruler    - text width, line breaks and the baseline of a line box. Default: a character-width estimate. For strict
-               parity use MeasuredRuler: the app's own text engine measures the strings (see measure_text_test.dart in
-               the design-parity-flutter skill) and the board reads the answers from measured_text.json.
-  * ids      - every text / icon / box can carry a stable id (data-id="<screen>/<path>"). The implementation check pairs
-               design and app elements by id, never by content or position.
+  * ruler    - text width, line breaks and the baseline of a line box. Default: a built-in character-width estimate.
+               Optionally, MeasuredRuler reads answers produced by a target rendering engine (e.g. a headless browser)
+               from measured_text.json.
+  * ids      - every text / icon / box can carry a stable id (data-id="<screen>/<path>"), so any later consumer can
+               refer to an element unambiguously, never by content or position.
   * G        - the element accumulator for ONE artboard in phone coordinates (x right, y down, 0,0 = top-left).
 
     import kit
@@ -34,7 +34,7 @@ STYLES = {}
 SHADOWS = {}
 ICONS = {}          # key -> inner svg markup (outline icons, drawn with stroke)
 CUSTOM = {}         # key -> inner svg markup (filled shapes, drawn with fill)
-ICON_NAMES = {}     # key -> name in the icon set (Lucide ...), for the app's glyph map
+ICON_NAMES = {}     # key -> name in the icon set (Lucide ...), for any downstream glyph map
 FONT = MONO = ''
 WARNINGS = []       # off-scale requests and other layout notes; the build script prints them
 SRC = {}            # data-id -> "file.py:line" of the call that made it (written by write_id_index)
@@ -128,7 +128,8 @@ def _wrap_estimate(s, size, bold, mono, maxw):
 
 
 class EstimateRuler:
-    """Character-width table. Good for a first layout; leave slack, and measure with the app before claiming parity."""
+    """Built-in character-width estimate. Good for a first layout; leave slack for its error. For closer measurement,
+    feed MeasuredRuler answers produced by the target rendering engine."""
     measured = False
     asc, desc = 1.0, 0.25          # per em; only used for the baseline estimate
 
@@ -158,8 +159,9 @@ class EstimateRuler:
 
 
 class MeasuredRuler(EstimateRuler):
-    """Answers measured by the app's text engine. A miss falls back to the estimate and is recorded in `needed`, which
-    write_needed_text() saves; run the app's measure test on that file, rebuild, repeat until nothing is missing."""
+    """Answers measured by a target rendering engine (e.g. a headless browser). A miss falls back to the estimate and is
+    recorded in `needed`, which write_needed_text() saves; produce the answers, rebuild, repeat until nothing is
+    missing."""
     measured = True
 
     def __init__(self, path):
@@ -240,7 +242,7 @@ def write_needed_text(path):
 
 
 def ell(s, size, maxw, weight=400, mono=False):
-    """End ellipsis, cut where the ruler (the app, when measured) says the text no longer fits."""
+    """End ellipsis, cut where the ruler (measured or estimated) says the text no longer fits."""
     return _ruler.ellipsize(s, size, weight, mono, maxw)
 
 
@@ -327,7 +329,7 @@ def style_of(style, size=None, weight=None, lh=None, mono=None):
 
 # ── init ─────────────────────────────────────────────────────────────────────────
 def init(tokens, icons=None, measured=None):
-    """Load tokens (path or dict), the icon list (icons.json) and, optionally, the app-measured text answers."""
+    """Load tokens (path or dict), the icon list (icons.json) and, optionally, text-measurement answers."""
     global TOKENS, light, dark, board, SIZES, WEIGHTS, RADII, ICON_SIZES, STYLES, SHADOWS, FONT, MONO, _ruler
     TOKENS = json.load(open(tokens, encoding='utf-8')) if isinstance(tokens, (str, os.PathLike)) else tokens
     sc = TOKENS['scales']
@@ -362,7 +364,7 @@ def init(tokens, icons=None, measured=None):
 
 
 def write_id_index(path):
-    """id -> source line of the call that drew it. parity.py prints it next to every difference."""
+    """id -> source line of the call that drew it (shown in reports next to every element)."""
     with open(path, 'w', encoding='utf-8') as fh:
         json.dump(SRC, fh, ensure_ascii=False, indent=0, sort_keys=True)
         fh.write('\n')
@@ -394,9 +396,9 @@ def defs():
 class G:
     """Elements of one artboard in phone coordinates. `screen` is the artboard's stable id (e.g. 'settings.list').
 
-    id=...  a stable id, unique per screen; it becomes data-id="<screen>/<id>".
-    deco=True  marks intentional decoration (a wash, a hairline) that the check does not pair; everything else on the
-               board should carry an id."""
+    id=...  a stable id, unique per screen; it becomes data-id="<screen>/<id>", so any later consumer can refer to
+            this element. deco=True marks intentional decoration (a wash, a hairline); everything else on the board
+            should carry an id."""
 
     def __init__(self, t, screen=None):
         self.t = t
@@ -429,7 +431,7 @@ class G:
 
     def rect(self, x, y, w, h, r=0, fill='none', stroke=None, sw=1, op=None, fop=None, shadow=None, dash=None,
              id=None, deco=False):
-        """A box. The stroke is drawn INSIDE the given rectangle (like CSS borders and Flutter's Border): the svg rect is
+        """A box. The stroke is drawn INSIDE the given rectangle (like CSS borders): the svg rect is
         inset by sw/2 and marked data-inset, extract_layout.py gives back the nominal rectangle."""
         r = snap_radius(r, w, h)
         inset = ''
@@ -502,8 +504,8 @@ class G:
     def text(self, x, y, txt, style='body', fill=None, anchor='start', at='top', maxw=None, op=None, ls=None,
              size=None, weight=None, lh=None, mono=None, id=None, deco=False):
         """One line of text. `y` is the top of its line box (at='top'), its centre (at='center') or its baseline
-        (at='base'); the baseline is derived from the ruler, so the app, which lays the same style out in a box of the
-        same height, lands on the same baseline."""
+        (at='base'); the baseline is derived from the ruler, so a consumer laying the same style out in a box of the
+        same height lands on the same baseline."""
         size, weight, lh, mono = style_of(style, size, weight, lh, mono)
         fill = fill or self.t.ink
         if maxw is not None:
