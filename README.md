@@ -34,6 +34,9 @@ shared logic in `internal/`.
   releases through the `gt` CLI.
 - [s3](skills/s3/SKILL.md) — object storage operations (buckets, ls/put/get/cat/rm,
   sync, url) through the `s3` CLI.
+- [claude-vision](skills/claude-vision/SKILL.md) — give a text-only agent eyes: have
+  Claude Code look at a screenshot through `claude -p`, for visual QA of layout,
+  spacing, contrast and clipping, with follow-up questions on the same image.
 - [design-board](skills/design-board/SKILL.md) — design an app as one script-generated
   SVG design board: tokens, enforced scales, every state, stable element ids, shared
   sample data, static checks and headless render. Ships a Python board-kit and a small
